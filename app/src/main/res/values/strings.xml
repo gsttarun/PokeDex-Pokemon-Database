@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PokeDex</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="pokemon_image">Pokemon Image</string>
+    <string name="pokemon_name">Pokemon Name</string>
+    <string name="pokemon_id">Pokemon Id</string>
+</resources>

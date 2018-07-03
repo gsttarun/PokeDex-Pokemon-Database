@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    android:id="@+id/list_item_root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:animateLayoutChanges="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <LinearLayout
+        android:id="@+id/pokemon_id_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/gray39"
+        android:elevation="5dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/line_view"
+        app:layout_constraintDimensionRatio="W,5:4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/id_hash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/cairo"
+            android:text="#"
+            android:textColor="@color/white"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/pokemon_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:fontFamily="@font/cairo"
+            android:textColor="@color/white"
+            android:transitionName="@string/pokemon_id"
+            android:textSize="20sp"
+            tools:text="123"/>
+
+    </LinearLayout>
+
+    <!-- <TextView
+         android:id="@+id/id_hash"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_marginStart="10dp"
+         android:fontFamily="@font/cairo"
+         android:text="#"
+         android:textColor="@color/gray39"
+         android:textSize="20sp"
+         app:layout_constraintBottom_toBottomOf="parent"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toTopOf="parent"/>
+
+     <TextView
+         android:id="@+id/pokemon_id"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_margin="5dp"
+         android:fontFamily="@font/cairo"
+         android:textColor="@color/gray39"
+         android:textSize="20sp"
+         app:layout_constraintBottom_toBottomOf="parent"
+         app:layout_constraintStart_toEndOf="@id/id_hash"
+         app:layout_constraintTop_toTopOf="parent"
+         tools:text="123"/>-->
+
+
+    <TextView
+        android:id="@+id/pokemon_name"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:background="@color/white"
+        android:fontFamily="@font/cairo"
+        android:gravity="center"
+        android:textColor="@color/gray13"
+        android:textSize="20sp"
+        android:transitionName="@string/pokemon_name"
+        app:layout_constraintBottom_toTopOf="@id/line_view"
+        app:layout_constraintEnd_toStartOf="@id/pokemon_img"
+        app:layout_constraintStart_toEndOf="@id/pokemon_id_layout"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Pikachu"/>
+
+    <ImageView
+        android:id="@+id/pokemon_img"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        android:elevation="3dp"
+        android:padding="2dp"
+        android:scaleType="centerCrop"
+        android:transitionName="@string/pokemon_image"
+        app:layout_constraintBottom_toTopOf="@id/line_view"
+        app:layout_constraintDimensionRatio="W,5:4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <View
+        android:id="@+id/line_view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray74"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>

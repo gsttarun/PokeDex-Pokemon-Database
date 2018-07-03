@@ -1,6 +1,9 @@
 package com.test.pokedex;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,6 +15,7 @@ import com.test.pokedex.network.PokeApiService;
 import com.test.pokedex.network.PokedexApiService;
 import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon2;
 import com.test.pokedex.network.models.pokemon.Pokemon1;
+import com.test.pokedex.view_model.Pokemon2ViewModel;
 
 import java.util.List;
 
@@ -23,7 +27,7 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 
-public class PokemonDetailActivity extends AppCompatActivity implements ApiConstants{
+public class PokemonDetailActivity extends AppCompatActivity implements ApiConstants {
 
     @Inject
     PokeApiService pokeApiService;
@@ -66,19 +70,17 @@ public class PokemonDetailActivity extends AppCompatActivity implements ApiConst
         public void onResponse(Call<List<Pokemon2>> call, Response<List<Pokemon2>> response) {
             if (response.body() != null) {
                 pokemon2List = response.body();
-                hideAnimationView();
                 setPokemon2Data();
-            }
-            else {
+            } else {
                 // TODO: 4/6/18 show error
             }
         }
 
         @Override
         public void onFailure(Call<List<Pokemon2>> call, Throwable t) {
-
         }
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,22 +96,31 @@ public class PokemonDetailActivity extends AppCompatActivity implements ApiConst
 //        Call<Pokemon1> pokemonByUrlCall = pokeApiService.getPokemonByURL(pokemonUrl);
 //        pokemonByUrlCall.enqueue(callback);
 
-        Call<List<Pokemon2>> pokemonByID = pokedexApiService.getPokemonByID(pokemonId);
-        pokemonByID.enqueue(pokemon2Callback);
+//        Call<List<Pokemon2>> pokemonByID = pokedexApiService.getPokemonByID(pokemonId);
+//        pokemonByID.enqueue(pokemon2Callback);
 
+        Pokemon2ViewModel pokemon2ViewModel = ViewModelProviders.of(this).get(Pokemon2ViewModel.class);
+        pokemon2ViewModel.getPokemon2(pokemonId,pokedexApiService).observe(this, new Observer<Pokemon2>() {
+            @Override
+            public void onChanged(@Nullable Pokemon2 pokemon2) {
+                showPokemon2(pokemon2);
+            }
+        });
     }
 
     private void setPokemon2Data() {
         Pokemon2 pokemon2 = pokemon2List.get(0);
+        showPokemon2(pokemon2);
+    }
 
+    private void showPokemon2(Pokemon2 pokemon2) {
+        hideAnimationView();
         String img_url = pokemon2.getSprite();
 
         Timber.v("Image URL = " + img_url);
 
         imageLoader.loadImage(img_url, pokemonImageView, imageLoadingAnimationView);
-
         pokemonNameTextView.setText(pokemon2.getName());
-
         pokemonIdTextView.setText(String.format("#%s", pokemon2.getNumber()));
     }
 

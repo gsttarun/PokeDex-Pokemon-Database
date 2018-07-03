@@ -7,6 +7,7 @@ import com.test.pokedex.PokemonListActivity;
 import com.test.pokedex.adapters.PokemonListAdapter;
 import com.test.pokedex.injection.modules.ImageLoaderModule;
 import com.test.pokedex.injection.modules.PokeApiServiceModule;
+import com.test.pokedex.view_model.Pokemon2ViewModel;
 
 import javax.inject.Singleton;
 
@@ -21,6 +22,8 @@ public interface AppComponent {
     void injectPokemonDetailActivity(PokemonDetailActivity pokemonDetailActivity);
 
     void injectPokemonListAdapter(PokemonListAdapter pokemonListAdapter);
+
+    void injectPokemonViewModel(Pokemon2ViewModel pokemon2ViewModel);
 
     Picasso getPicasso();
 }

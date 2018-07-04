@@ -3,10 +3,13 @@ package com.test.pokedex.view_model;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
+import com.test.pokedex.PokeApplication;
 import com.test.pokedex.network.PokedexApiService;
 import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon2;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -14,16 +17,23 @@ import retrofit2.Response;
 
 public class Pokemon2ViewModel extends ViewModel {
 
-    private PokedexApiService pokedexApiService;
+    @Inject
+    PokedexApiService pokedexApiService; //cannot be private cause of dagger injection
 
     private MutableLiveData<Pokemon2> pokemon2;
+
+    public Pokemon2ViewModel() {
+        super();
+        PokeApplication.appComponent().injectPokemonViewModel(this);
+    }
 
     private Callback<List<Pokemon2>> callback = new Callback<List<Pokemon2>>() {
         @Override
         public void onResponse(Call<List<Pokemon2>> call, Response<List<Pokemon2>> response) {
             if (response.body() != null) {
                 pokemon2.setValue(response.body().get(0));
-            } else {// TODO: 4/6/18 show error
+            }
+            else {// TODO: 4/6/18 show error
             }
         }
 
@@ -32,8 +42,7 @@ public class Pokemon2ViewModel extends ViewModel {
         }
     };
 
-    public MutableLiveData<Pokemon2> getPokemon2(int pokemonId, PokedexApiService pokedexApiService) {
-        this.pokedexApiService = pokedexApiService;
+    public MutableLiveData<Pokemon2> getPokemon2(int pokemonId) {
 
         if (pokemon2 == null) {
             pokemon2 = new MutableLiveData<Pokemon2>();

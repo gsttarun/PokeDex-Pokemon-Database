@@ -11,8 +11,6 @@ import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.test.pokedex.network.ApiConstants;
-import com.test.pokedex.network.PokeApiService;
-import com.test.pokedex.network.PokedexApiService;
 import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon2;
 import com.test.pokedex.network.models.pokemon.Pokemon1;
 import com.test.pokedex.view_model.Pokemon2ViewModel;
@@ -28,12 +26,6 @@ import timber.log.Timber;
 
 
 public class PokemonDetailActivity extends AppCompatActivity implements ApiConstants {
-
-    @Inject
-    PokeApiService pokeApiService;
-
-    @Inject
-    PokedexApiService pokedexApiService;
 
     @Inject
     ImageLoader imageLoader;
@@ -71,7 +63,8 @@ public class PokemonDetailActivity extends AppCompatActivity implements ApiConst
             if (response.body() != null) {
                 pokemon2List = response.body();
                 setPokemon2Data();
-            } else {
+            }
+            else {
                 // TODO: 4/6/18 show error
             }
         }
@@ -87,7 +80,7 @@ public class PokemonDetailActivity extends AppCompatActivity implements ApiConst
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pokemon_detail);
 
-        ((PokeApplication) getApplication()).appComponent().injectPokemonDetailActivity(this);
+        PokeApplication.appComponent().injectPokemonDetailActivity(this);
 
         getBundleData();
 
@@ -100,13 +93,30 @@ public class PokemonDetailActivity extends AppCompatActivity implements ApiConst
 //        pokemonByID.enqueue(pokemon2Callback);
 
         Pokemon2ViewModel pokemon2ViewModel = ViewModelProviders.of(this).get(Pokemon2ViewModel.class);
-        pokemon2ViewModel.getPokemon2(pokemonId,pokedexApiService).observe(this, new Observer<Pokemon2>() {
+        pokemon2ViewModel.getPokemon2(pokemonId).observe(this, new Observer<Pokemon2>() {
             @Override
             public void onChanged(@Nullable Pokemon2 pokemon2) {
-                showPokemon2(pokemon2);
+                if (pokemon2 != null) {
+                    showPokemon2(pokemon2);
+                }
             }
         });
     }
+
+    private void getBundleData() {
+        pokemonUrl = getIntent().getStringExtra(URL);
+        pokemonName = getIntent().getStringExtra(POKEMON_NAME);
+        pokemonId = getIntent().getIntExtra(POKEMON_ID, 0);
+    }
+
+    private void initViews() {
+        pokemonImageView = findViewById(R.id.pokemon_img);
+        pokemonNameTextView = findViewById(R.id.pokemon_name);
+        pokemonIdTextView = findViewById(R.id.pokemon_id);
+        loadingAnimationView = findViewById(R.id.loading_view);
+        imageLoadingAnimationView = findViewById(R.id.img_loading_view);
+    }
+
 
     private void setPokemon2Data() {
         Pokemon2 pokemon2 = pokemon2List.get(0);
@@ -124,11 +134,6 @@ public class PokemonDetailActivity extends AppCompatActivity implements ApiConst
         pokemonIdTextView.setText(String.format("#%s", pokemon2.getNumber()));
     }
 
-    private void getBundleData() {
-        pokemonUrl = getIntent().getStringExtra(URL);
-        pokemonName = getIntent().getStringExtra(POKEMON_NAME);
-        pokemonId = getIntent().getIntExtra(POKEMON_ID, 0);
-    }
 
     private void hideAnimationView() {
         loadingAnimationView.cancelAnimation();
@@ -149,11 +154,4 @@ public class PokemonDetailActivity extends AppCompatActivity implements ApiConst
 
     }
 
-    private void initViews() {
-        pokemonImageView = findViewById(R.id.pokemon_img);
-        pokemonNameTextView = findViewById(R.id.pokemon_name);
-        pokemonIdTextView = findViewById(R.id.pokemon_id);
-        loadingAnimationView = findViewById(R.id.loading_view);
-        imageLoadingAnimationView = findViewById(R.id.img_loading_view);
-    }
 }

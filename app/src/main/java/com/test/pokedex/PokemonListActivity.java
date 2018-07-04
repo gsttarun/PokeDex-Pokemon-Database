@@ -25,7 +25,7 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 
-public class PokemonListActivity extends AppCompatActivity implements PokemonListAdapter.OnItemClickListener, PokemonListAdapter.OnLoadMoreListener, View.OnClickListener,ApiConstants {
+public class PokemonListActivity extends AppCompatActivity implements PokemonListAdapter.OnItemClickListener, PokemonListAdapter.OnLoadMoreListener, View.OnClickListener, ApiConstants {
 
     @Inject
     PokeApiService pokeApiService;
@@ -47,7 +47,7 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
         setContentView(R.layout.activity_pokemon_list);
 
-        PokeApplication.get(this)
+        PokeApplication
                 .appComponent()
                 .injectPokemonListActivity(this);
 

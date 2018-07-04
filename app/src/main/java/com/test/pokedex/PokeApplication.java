@@ -11,7 +11,7 @@ import timber.log.Timber;
 
 public class PokeApplication extends Application {
 
-    private AppComponent appComponent;
+    private static AppComponent appComponent;
 
     @Override
     public void onCreate() {
@@ -25,7 +25,7 @@ public class PokeApplication extends Application {
                         .build();
     }
 
-    public AppComponent appComponent() {
+    public static AppComponent appComponent() {
         return appComponent;
     }
 

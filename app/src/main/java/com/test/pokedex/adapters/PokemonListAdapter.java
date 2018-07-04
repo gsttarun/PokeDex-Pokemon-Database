@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.test.pokedex.ImageLoader;
 import com.test.pokedex.PokeApplication;
 import com.test.pokedex.R;
-import com.test.pokedex.network.ApiConstants;
 import com.test.pokedex.network.models.pokemon_list.Result;
 
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Inject
     public PokemonListAdapter(Context context) {
         results = new ArrayList<>();
-        ((PokeApplication) context.getApplicationContext()).appComponent().injectPokemonListAdapter(this);
+        PokeApplication.appComponent().injectPokemonListAdapter(this);
     }
 
     @NonNull
@@ -61,8 +60,7 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_item_pokemon, parent, false);
             return new PokemonListItemViewHolder(view);
-        }
-        else if (viewType == VIEW_TYPE_LOADING) {
+        } else if (viewType == VIEW_TYPE_LOADING) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_loading, parent, false);
             return new LoadingViewHolder(view);
         }
@@ -120,11 +118,16 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void addResults(List<Result> resultsToAdd) {
-        results.remove(results.size() - 1);
-        notifyItemRemoved(results.size() - 1);
-        int insertPosition = results.size();
-        results.addAll(resultsToAdd);
-        notifyItemRangeInserted(insertPosition + 1, resultsToAdd.size());
+        if (results.size() > 0) {
+            int removePosition = results.size() - 1;
+            results.remove(removePosition);
+            notifyItemRemoved(removePosition );
+            results.addAll(resultsToAdd);
+            notifyItemRangeInserted(removePosition , resultsToAdd.size());
+        } else {
+            results.addAll(resultsToAdd);
+            notifyDataSetChanged();
+        }
     }
 
     public void setLoaded() {

@@ -1,7 +1,10 @@
 package com.test.pokedex;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.constraint.Group;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,17 +15,12 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.test.pokedex.adapters.PokemonListAdapter;
 import com.test.pokedex.network.ApiConstants;
 import com.test.pokedex.network.PokeApiService;
-import com.test.pokedex.network.models.pokemon_list.PokemonListResponse;
 import com.test.pokedex.network.models.pokemon_list.Result;
+import com.test.pokedex.view_model.PokemonListViewModel;
 
 import java.util.List;
 
 import javax.inject.Inject;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import timber.log.Timber;
 
 
 public class PokemonListActivity extends AppCompatActivity implements PokemonListAdapter.OnItemClickListener, PokemonListAdapter.OnLoadMoreListener, View.OnClickListener, ApiConstants {
@@ -33,6 +31,7 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
     @Inject
     PokemonListAdapter pokemonListAdapter;
 
+    PokemonListViewModel pokemonListViewModel;
     RecyclerView recyclerView;
     private List<Result> results;
     private String nextUrl = null;
@@ -47,9 +46,19 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
         setContentView(R.layout.activity_pokemon_list);
 
-        PokeApplication
-                .appComponent()
+        PokeApplication.appComponent()
                 .injectPokemonListActivity(this);
+
+        pokemonListViewModel = ViewModelProviders.of(this).get(PokemonListViewModel.class);
+        pokemonListViewModel.getMutablePokemonList().observe(this, new Observer<List<Result>>() {
+            @Override
+            public void onChanged(@Nullable List<Result> results) {
+                pokemonListAdapter.setLoaded();
+                pokemonListAdapter.addResults(results);
+                hideLoadingAnimation();
+                hideLoadingTextGroup();
+            }
+        });
 
         initViews();
 
@@ -59,7 +68,8 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
         setUpAdapter();
 
-        callPokemonListAPI();
+        playLoadingAnimation();
+        showLoadingTextGroup();
     }
 
     private void setListeners() {
@@ -86,30 +96,6 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
         recyclerView.setAdapter(pokemonListAdapter);
     }
 
-    private void callPokemonListAPI() {
-        playLoadingAnimation();
-        showLoadingTextGroup();
-
-        Call<PokemonListResponse> pokemonList = pokeApiService.getPokemonList();
-
-        pokemonList.enqueue(new Callback<PokemonListResponse>() {
-            @Override
-            public void onResponse(Call<PokemonListResponse> call, Response<PokemonListResponse> response) {
-                if (response.body() != null) {
-                    results = response.body().getResults();
-                    nextUrl = response.body().getNext();
-                    pokemonListAdapter.setResults(results);
-                    hideLoadingTextGroup();
-                    hideLoadingAnimation();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<PokemonListResponse> call, Throwable t) {
-
-            }
-        });
-    }
 
     private void showErrorConnectionGroup() {
         connectionErrorGroup.setVisibility(View.VISIBLE);
@@ -137,50 +123,24 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
         loadingAnimationView.setVisibility(View.GONE);
     }
 
-    private void loadMorePokemons() {
-
-        //Generating more data
-        Call<PokemonListResponse> pokemonListByURL = pokeApiService.getPokemonListByURL(nextUrl);
-        pokemonListByURL.enqueue(new Callback<PokemonListResponse>() {
-            @Override
-            public void onResponse(Call<PokemonListResponse> call, final Response<PokemonListResponse> response) {
-//                        results.addAll(response.body().getResults());
-                pokemonListAdapter.setLoaded();
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        pokemonListAdapter.addResults(response.body().getResults());
-                    }
-                });
-                nextUrl = response.body().getNext();
-//                results.remove(results.size() - 1);
-//                pokemonListAdapter.notifyItemRemoved(results.size());
-            }
-
-            @Override
-            public void onFailure(Call<PokemonListResponse> call, Throwable t) {
-                Timber.e("getPokemonList API fail :" + t.getMessage());
-            }
-        });
-    }
 
     @Override
     public void onItemClick(int position) {
         Intent intent = new Intent(PokemonListActivity.this, PokemonDetailActivity.class);
-        intent.putExtra(URL, results.get(position).getUrl());
-        intent.putExtra(POKEMON_NAME, results.get(position).getName());
+        List<Result> resultList = pokemonListViewModel.getPokemonList();
+        intent.putExtra(URL, resultList.get(position).getUrl());
+        intent.putExtra(POKEMON_NAME, resultList.get(position).getName());
         intent.putExtra(POKEMON_ID, position + 1);
         startActivity(intent);
     }
 
     @Override
     public void onLoadMore() {
-        loadMorePokemons();
+        pokemonListViewModel.loadMorePokemons();
     }
 
     @Override
     public void onClick(View v) {
-        callPokemonListAPI();
+        pokemonListViewModel.loadInitialPokemonList();
     }
 }

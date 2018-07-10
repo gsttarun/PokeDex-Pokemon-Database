@@ -54,7 +54,7 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
             @Override
             public void onChanged(@Nullable List<Result> results) {
                 pokemonListAdapter.setLoaded();
-                pokemonListAdapter.addResults(results);
+                pokemonListAdapter.updateList(results);
                 hideLoadingAnimation();
                 hideLoadingTextGroup();
             }
@@ -127,7 +127,7 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
     @Override
     public void onItemClick(int position) {
         Intent intent = new Intent(PokemonListActivity.this, PokemonDetailActivity.class);
-        List<Result> resultList = pokemonListViewModel.getPokemonList();
+        List<Result> resultList = pokemonListViewModel.getMutablePokemonList().getValue();
         intent.putExtra(URL, resultList.get(position).getUrl());
         intent.putExtra(POKEMON_NAME, resultList.get(position).getName());
         intent.putExtra(POKEMON_ID, position + 1);

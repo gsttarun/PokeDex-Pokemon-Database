@@ -2,6 +2,7 @@ package com.test.pokedex.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.test.pokedex.ImageLoader;
+import com.test.pokedex.MyDiffUtilCallBack;
 import com.test.pokedex.PokeApplication;
 import com.test.pokedex.R;
 import com.test.pokedex.network.models.pokemon_list.Result;
@@ -121,11 +123,26 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (results.size() > 0) {
             int removePosition = results.size() - 1;
             results.remove(removePosition);
-            notifyItemRemoved(removePosition );
+            notifyItemRemoved(removePosition);
             results.addAll(resultsToAdd);
-            notifyItemRangeInserted(removePosition , resultsToAdd.size());
+            notifyItemRangeInserted(removePosition, resultsToAdd.size());
         } else {
             results.addAll(resultsToAdd);
+            notifyDataSetChanged();
+        }
+    }
+
+    public void updateList(List<Result> newList) {
+        if (results.size() > 0) {
+            int removePosition = results.size() - 1;
+            results.remove(removePosition);
+            notifyItemRemoved(removePosition);
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MyDiffUtilCallBack(results, newList));
+            results.clear();
+            results.addAll(newList);
+            diffResult.dispatchUpdatesTo(this);
+        } else {
+            results.addAll(newList);
             notifyDataSetChanged();
         }
     }

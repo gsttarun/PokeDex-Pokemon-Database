@@ -78,8 +78,11 @@ public class PokemonListViewModel extends ViewModel {
             @Override
             public void onResponse(Call<PokemonListResponse> call, final Response<PokemonListResponse> response) {
 
-                List<Result> results = response.body().getResults();
-                pokemonList.addAll(results);
+//                List<Result> results = response.body().getResults();
+//                pokemonList.addAll(results);
+                List<Result> results = mutablePokemonList.getValue();
+                results.addAll(response.body().getResults());
+
                 mutablePokemonList.postValue(results);
                 nextUrl = response.body().getNext();
             }

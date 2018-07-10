@@ -3,11 +3,10 @@ package com.test.pokedex;
 import android.app.Activity;
 import android.app.Application;
 
+import com.singhajit.sherlock.core.Sherlock;
 import com.test.pokedex.injection.components.AppComponent;
 import com.test.pokedex.injection.components.DaggerAppComponent;
 import com.test.pokedex.injection.modules.ContextModule;
-
-import timber.log.Timber;
 
 public class PokeApplication extends Application {
 
@@ -17,12 +16,12 @@ public class PokeApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Timber.plant(new Timber.DebugTree());
-
-        appComponent= DaggerAppComponent
-                        .builder()
-                        .contextModule(new ContextModule(this))
-                        .build();
+        TimberLogImplementation.init();
+        Sherlock.init(this); //Initializing Sherlock
+        appComponent = DaggerAppComponent
+                .builder()
+                .contextModule(new ContextModule(this))
+                .build();
     }
 
     public static AppComponent appComponent() {

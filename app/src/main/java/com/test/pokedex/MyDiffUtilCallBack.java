@@ -6,8 +6,6 @@ import com.test.pokedex.network.models.pokemon_list.Result;
 
 import java.util.List;
 
-import timber.log.Timber;
-
 public class MyDiffUtilCallBack extends DiffUtil.Callback {
 
     private List<Result> oldResults;
@@ -32,15 +30,19 @@ public class MyDiffUtilCallBack extends DiffUtil.Callback {
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
         Result oldItem = oldResults.get(oldItemPosition);
         Result newItem = newResults.get(newItemPosition);
-        boolean matches = oldItem.getName().matches(newItem.getName());
-        Timber.v("areItemsTheSame : "+matches);
+        boolean matches = false;
+
+        if (oldItem!=null && newItem!=null) {
+            matches = oldItem.getName().matches(newItem.getName());
+//            Timber.v("areItemsTheSame : "+matches);
+        }
         return matches;
     }
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        boolean matches = oldResults.get(oldItemPosition).getUrl().matches(newResults.get(newItemPosition).getUrl());
-        Timber.v("areContentsTheSame : "+matches);
+        boolean matches = oldResults.get(oldItemPosition)==newResults.get(newItemPosition);
+//        Timber.v("areContentsTheSame : "+matches);
         return matches;
     }
 }

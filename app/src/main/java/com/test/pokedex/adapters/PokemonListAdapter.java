@@ -1,6 +1,7 @@
 package com.test.pokedex.adapters;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,14 +12,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.test.pokedex.ImageLoader;
 import com.test.pokedex.MyDiffUtilCallBack;
 import com.test.pokedex.PokeApplication;
 import com.test.pokedex.R;
 import com.test.pokedex.network.models.pokemon_list.Result;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import javax.inject.Inject;
 
@@ -35,6 +39,9 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private OnLoadMoreListener onLoadMoreListener;
     private OnItemClickListener onItemClickListener;
+
+    private Queue<List<Result>> pendingUpdates =
+            new ArrayDeque<>();
 
     @Inject
     ImageLoader imageLoader;
@@ -62,7 +69,8 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_item_pokemon, parent, false);
             return new PokemonListItemViewHolder(view);
-        } else if (viewType == VIEW_TYPE_LOADING) {
+        }
+        else if (viewType == VIEW_TYPE_LOADING) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_loading, parent, false);
             return new LoadingViewHolder(view);
         }
@@ -126,7 +134,8 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             notifyItemRemoved(removePosition);
             results.addAll(resultsToAdd);
             notifyItemRangeInserted(removePosition, resultsToAdd.size());
-        } else {
+        }
+        else {
             results.addAll(resultsToAdd);
             notifyDataSetChanged();
         }
@@ -134,17 +143,64 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public void updateList(List<Result> newList) {
         if (results.size() > 0) {
-            int removePosition = results.size() - 1;
-            results.remove(removePosition);
-            notifyItemRemoved(removePosition);
-            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MyDiffUtilCallBack(results, newList));
-            results.clear();
-            results.addAll(newList);
-            diffResult.dispatchUpdatesTo(this);
-        } else {
+            pendingUpdates.add(newList);
+            if (pendingUpdates.size() > 1) {
+                return;
+            }
+            updateItemsInternal(newList);
+        }
+        else {
             results.addAll(newList);
             notifyDataSetChanged();
         }
+
+    }
+
+    private void updateItemsInternal(final List<Result> newList) {
+        final int removePosition = results.size() - 1;
+        results.remove(removePosition);
+        final Handler handler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MyDiffUtilCallBack(results, newList));
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyItemRemoved(removePosition);
+                        applyDiffResult(newList, diffResult);
+                    }
+                });
+            }
+        }).start();
+
+
+    }
+
+    // This method is called when the background work is done
+    protected void applyDiffResult(List<Result> newList,
+                                   DiffUtil.DiffResult diffResult) {
+        pendingUpdates.remove();
+        dispatchUpdates(newList, diffResult);
+        if (pendingUpdates.size() > 0) {
+            updateItemsInternal(pendingUpdates.peek());
+        }
+    }
+
+    // This method does the work of actually updating
+    // the backing data and notifying the adapter
+    private void dispatchUpdates(final List<Result> newList,
+                                 final DiffUtil.DiffResult diffResult) {
+        final PokemonListAdapter pokemonListAdapter = this;
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+
+                diffResult.dispatchUpdatesTo(pokemonListAdapter);
+                results.clear();
+                results.addAll(newList);
+            }
+        });
     }
 
     public void setLoaded() {
@@ -193,9 +249,11 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     // "Loading item" ViewHolder
     private class LoadingViewHolder extends RecyclerView.ViewHolder {
+        LottieAnimationView animationView;
 
         public LoadingViewHolder(View itemView) {
             super(itemView);
+            animationView = itemView.findViewById(R.id.animation_view);
         }
     }
 

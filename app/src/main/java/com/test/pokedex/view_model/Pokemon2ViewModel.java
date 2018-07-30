@@ -27,20 +27,7 @@ public class Pokemon2ViewModel extends ViewModel {
         PokeApplication.appComponent().injectPokemonViewModel(this);
     }
 
-    private Callback<List<Pokemon2>> callback = new Callback<List<Pokemon2>>() {
-        @Override
-        public void onResponse(Call<List<Pokemon2>> call, Response<List<Pokemon2>> response) {
-            if (response.body() != null) {
-                pokemon2.setValue(response.body().get(0));
-            }
-            else {// TODO: 4/6/18 show error
-            }
-        }
 
-        @Override
-        public void onFailure(Call<List<Pokemon2>> call, Throwable t) {
-        }
-    };
 
     public MutableLiveData<Pokemon2> getPokemon2(int pokemonId) {
 
@@ -55,5 +42,20 @@ public class Pokemon2ViewModel extends ViewModel {
         Call<List<Pokemon2>> pokemonByID = pokedexApiService.getPokemonByID(pokemonId);
         pokemonByID.enqueue(callback);
     }
+
+    private Callback<List<Pokemon2>> callback = new Callback<List<Pokemon2>>() {
+        @Override
+        public void onResponse(Call<List<Pokemon2>> call, Response<List<Pokemon2>> response) {
+            if (response.body() != null) {
+                pokemon2.postValue(response.body().get(0));
+            }
+            else {// TODO: 4/6/18 show error
+            }
+        }
+
+        @Override
+        public void onFailure(Call<List<Pokemon2>> call, Throwable t) {
+        }
+    };
 
 }

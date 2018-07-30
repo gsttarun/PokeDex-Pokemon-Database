@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:animateLayoutChanges="true"
     android:layout_height="match_parent"
     tools:context=".PokemonListActivity">
 
@@ -17,6 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
+        android:clickable="false"
+        android:focusableInTouchMode="false"
         android:foreground="?android:attr/selectableItemBackground"/>
 
     <com.airbnb.lottie.LottieAnimationView
@@ -29,7 +32,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.35"
         app:layout_constraintVertical_chainStyle="packed"
-        app:lottie_autoPlay="true"
+        android:visibility="invisible"
+        app:lottie_autoPlay="false"
         app:lottie_fileName="no_connection.json"
         app:lottie_loop="false"/>
 
@@ -70,7 +74,7 @@
         android:id="@+id/connection_error_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:constraint_referenced_ids="white_background_view,no_connection_lottie_view,text3,opps_text,text4"/>
 
 
@@ -80,9 +84,9 @@
         android:text="Getting data from server"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.4"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.4"/>
 
     <android.support.constraint.Group
         android:id="@+id/loading_group"

@@ -37,19 +37,6 @@ public class PokemonListViewModel extends ViewModel {
         return pokemonList;
     }
 
-    public MutableLiveData<List<Result>> getMutablePokemonList() {
-        if (mutablePokemonList == null) {
-            mutablePokemonList = new MutableLiveData<>();
-            loadInitialPokemonList();
-        }
-        return mutablePokemonList;
-    }
-
-    public void loadInitialPokemonList() {
-        Call<PokemonListResponse> pokemonList = pokeApiService.getPokemonList();
-        pokemonList.enqueue(callback);
-    }
-
     private Callback<PokemonListResponse> callback = new Callback<PokemonListResponse>() {
         @Override
         public void onResponse(Call<PokemonListResponse> call, Response<PokemonListResponse> response) {
@@ -65,9 +52,24 @@ public class PokemonListViewModel extends ViewModel {
 
         @Override
         public void onFailure(Call<PokemonListResponse> call, Throwable t) {
-
+            mutablePokemonList.postValue(null);
         }
     };
+
+    public void loadInitialPokemonList() {
+        Call<PokemonListResponse> pokemonList = pokeApiService.getPokemonList();
+        pokemonList.enqueue(callback);
+    }
+
+    public MutableLiveData<List<Result>> getMutablePokemonList() {
+        if (mutablePokemonList == null) {
+            mutablePokemonList = new MutableLiveData<>();
+            loadInitialPokemonList();
+        }
+//        else if (pokemonList.size() > 0)
+//            mutablePokemonList.setValue(pokemonList);
+        return mutablePokemonList;
+    }
 
     public void loadMorePokemons() {
 
@@ -90,6 +92,7 @@ public class PokemonListViewModel extends ViewModel {
             @Override
             public void onFailure(Call<PokemonListResponse> call, Throwable t) {
                 Timber.e("getPokemonList API fail :" + t.getMessage());
+                mutablePokemonList.postValue(mutablePokemonList.getValue());
             }
         };
         pokemonListByURL.enqueue(loadMoreCallback);

@@ -32,11 +32,10 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
     PokemonListAdapter pokemonListAdapter;
 
     PokemonListViewModel pokemonListViewModel;
+
     RecyclerView recyclerView;
-    private List<Result> results;
-    private String nextUrl = null;
     Group connectionErrorGroup, loadingTextGroup;
-    LottieAnimationView loadingAnimationView;
+    LottieAnimationView loadingAnimationView, noConnectionAnimationView;
     View whiteBackgroundView;
 
 
@@ -53,10 +52,19 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
         pokemonListViewModel.getMutablePokemonList().observe(this, new Observer<List<Result>>() {
             @Override
             public void onChanged(@Nullable List<Result> results) {
-                pokemonListAdapter.setLoaded();
-                pokemonListAdapter.updateList(results);
-                hideLoadingAnimation();
-                hideLoadingTextGroup();
+
+                if (results == null) {
+                    hideLoadingAnimation();
+                    hideLoadingTextGroup();
+                    showErrorConnectionGroup();
+                }
+                else {
+                    pokemonListAdapter.setLoaded();
+                    pokemonListAdapter.updateList(results);
+                    hideErrorConnectionGroup();
+                    hideLoadingAnimation();
+                    hideLoadingTextGroup();
+                }
             }
         });
 
@@ -70,6 +78,7 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
         playLoadingAnimation();
         showLoadingTextGroup();
+//        hideErrorConnectionGroup();
     }
 
     private void setListeners() {
@@ -87,6 +96,7 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
         connectionErrorGroup = findViewById(R.id.connection_error_group);
         loadingTextGroup = findViewById(R.id.loading_group);
         loadingAnimationView = findViewById(R.id.loading_lottie_view);
+        noConnectionAnimationView = findViewById(R.id.no_connection_lottie_view);
         whiteBackgroundView = findViewById(R.id.white_background_view);
     }
 
@@ -99,9 +109,14 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
     private void showErrorConnectionGroup() {
         connectionErrorGroup.setVisibility(View.VISIBLE);
+        loadingAnimationView.playAnimation();
+        whiteBackgroundView.setClickable(true);
+        whiteBackgroundView.setFocusableInTouchMode(true);
     }
 
     private void hideErrorConnectionGroup() {
+        whiteBackgroundView.setClickable(false);
+        whiteBackgroundView.setFocusableInTouchMode(false);
         connectionErrorGroup.setVisibility(View.GONE);
     }
 
@@ -141,6 +156,9 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
     @Override
     public void onClick(View v) {
+        hideErrorConnectionGroup();
+        showLoadingTextGroup();
+        playLoadingAnimation();
         pokemonListViewModel.loadInitialPokemonList();
     }
 }

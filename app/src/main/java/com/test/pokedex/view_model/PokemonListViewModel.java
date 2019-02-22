@@ -4,7 +4,7 @@ package com.test.pokedex.view_model;
 import com.test.pokedex.PokeApplication;
 import com.test.pokedex.network.PokeApiService;
 import com.test.pokedex.network.models.pokemon_list.PokemonListResponse;
-import com.test.pokedex.network.models.pokemon_list.Result;
+import com.test.pokedex.network.models.pokemon_list.PokemonItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +23,8 @@ public class PokemonListViewModel extends ViewModel {
     @Inject
     PokeApiService pokeApiService;
 
-    private List<Result> pokemonList = new ArrayList<>();
-    private MutableLiveData<List<Result>> mutablePokemonList;
+    private List<PokemonItem> pokemonList = new ArrayList<>();
+    private MutableLiveData<List<PokemonItem>> mutablePokemonList;
     private String nextUrl = "";
 
     public PokemonListViewModel() {
@@ -32,7 +32,7 @@ public class PokemonListViewModel extends ViewModel {
         PokeApplication.Companion.appComponent().injectPokemonListViewModel(this);
     }
 
-    public List<Result> getPokemonList() {
+    public List<PokemonItem> getPokemonList() {
         return pokemonList;
     }
 
@@ -41,9 +41,9 @@ public class PokemonListViewModel extends ViewModel {
         public void onResponse(Call<PokemonListResponse> call, Response<PokemonListResponse> response) {
             if (response.body() != null) {
                 if (response.body() != null) {
-                    List<Result> results = response.body().getResults();
-                    pokemonList.addAll(results);
-                    mutablePokemonList.postValue(results);
+                    List<PokemonItem> pokemonItems = response.body().getPokemonItems();
+                    pokemonList.addAll(pokemonItems);
+                    mutablePokemonList.postValue(pokemonItems);
                     nextUrl = response.body().getNext();
                 }
             }
@@ -60,7 +60,7 @@ public class PokemonListViewModel extends ViewModel {
         pokemonList.enqueue(callback);
     }
 
-    public MutableLiveData<List<Result>> getMutablePokemonList() {
+    public MutableLiveData<List<PokemonItem>> getMutablePokemonList() {
         if (mutablePokemonList == null) {
             mutablePokemonList = new MutableLiveData<>();
             loadInitialPokemonList();
@@ -79,12 +79,12 @@ public class PokemonListViewModel extends ViewModel {
             @Override
             public void onResponse(Call<PokemonListResponse> call, final Response<PokemonListResponse> response) {
 
-//                List<Result> results = response.body().getResults();
-//                pokemonList.addAll(results);
-                List<Result> results = mutablePokemonList.getValue();
-                results.addAll(response.body().getResults());
+//                List<PokemonItem> pokemonItems = response.body().getPokemonItems();
+//                pokemonList.addAll(pokemonItems);
+                List<PokemonItem> pokemonItems = mutablePokemonList.getValue();
+                pokemonItems.addAll(response.body().getPokemonItems());
 
-                mutablePokemonList.postValue(results);
+                mutablePokemonList.postValue(pokemonItems);
                 nextUrl = response.body().getNext();
             }
 

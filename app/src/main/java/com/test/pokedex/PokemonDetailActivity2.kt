@@ -9,17 +9,20 @@ import com.test.pokedex.network.ApiConstants
 import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon
 import com.test.pokedex.view_model.Pokemon2ViewModel
 import kotlinx.android.synthetic.main.activity_pokemon_detail.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 
-class PokemonDetailActivity2 : AppCompatActivity(), ApiConstants {
+class PokemonDetailActivity2 : AppCompatActivity(), CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
 
     @Inject
     public lateinit var imageLoader: ImageLoader
@@ -34,7 +37,7 @@ class PokemonDetailActivity2 : AppCompatActivity(), ApiConstants {
         when (responseResource.status) {
             Status.SUCCESS -> {
                 responseResource.data?.let {
-                    GlobalScope.launch {
+                    launch {
                         Repository.savePokemon(it)
                     }
                 }
@@ -94,8 +97,7 @@ class PokemonDetailActivity2 : AppCompatActivity(), ApiConstants {
                  showPokemon2(pokemon2)
              }
          })*/
-
-        GlobalScope.launch(Dispatchers.Main) {
+        launch {
             Repository.getPokemonByIdFromDatabase(pokemonId).observe(this@PokemonDetailActivity2, Observer {
                 if (it == null) {
                     Repository.getPokemonByIdFromNetwork(pokemonId).observe(this@PokemonDetailActivity2, networkObserver)

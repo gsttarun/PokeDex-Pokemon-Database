@@ -24,7 +24,7 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 
-public class PokemonDetailActivity extends AppCompatActivity implements ApiConstants {
+public class PokemonDetailActivity extends AppCompatActivity {
 
     @Inject
     ImageLoader imageLoader;
@@ -104,9 +104,9 @@ public class PokemonDetailActivity extends AppCompatActivity implements ApiConst
     }
 
     private void getBundleData() {
-        pokemonUrl = getIntent().getStringExtra(URL);
-        pokemonName = getIntent().getStringExtra(POKEMON_NAME);
-        pokemonId = getIntent().getIntExtra(POKEMON_ID, 0);
+        pokemonUrl = getIntent().getStringExtra(ApiConstants.URL);
+        pokemonName = getIntent().getStringExtra(ApiConstants.POKEMON_NAME);
+        pokemonId = getIntent().getIntExtra(ApiConstants.POKEMON_ID, 0);
     }
 
     private void initViews() {

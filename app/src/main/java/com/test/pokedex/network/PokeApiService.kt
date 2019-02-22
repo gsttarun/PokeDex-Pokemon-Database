@@ -2,7 +2,10 @@ package com.test.pokedex.network
 
 
 import com.test.pokedex.BuildConfig
-import com.test.pokedex.network.ApiConstants.*
+import com.test.pokedex.network.ApiConstants.LIMIT
+import com.test.pokedex.network.ApiConstants.OFFSET
+import com.test.pokedex.network.ApiConstants.POKEMON_ID
+import com.test.pokedex.network.ApiConstants.POKEMON_NAME
 import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon
 import com.test.pokedex.network.models.pokemon_list.PokemonListResponse
 import retrofit2.Call

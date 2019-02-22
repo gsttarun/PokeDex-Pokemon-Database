@@ -1,4 +1,4 @@
-package com.test.pokedex
+package com.test.pokedex.data_manager
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -21,4 +21,5 @@ interface PokemonDAO {
 
     @Query("Select * from Pokemon where id = :pokemonId")
     fun getPokemonById(pokemonId: Int): LiveData<Pokemon>
+
 }

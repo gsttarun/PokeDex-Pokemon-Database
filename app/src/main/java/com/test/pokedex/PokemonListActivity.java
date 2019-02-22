@@ -8,7 +8,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.test.pokedex.adapters.PokemonListAdapter;
 import com.test.pokedex.network.ApiConstants;
 import com.test.pokedex.network.PokeApiService;
-import com.test.pokedex.network.models.pokemon_list.Result;
+import com.test.pokedex.network.models.pokemon_list.PokemonItem;
 import com.test.pokedex.view_model.PokemonListViewModel;
 
 import java.util.List;
@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-public class PokemonListActivity extends AppCompatActivity implements PokemonListAdapter.OnItemClickListener, PokemonListAdapter.OnLoadMoreListener, View.OnClickListener, ApiConstants {
+public class PokemonListActivity extends AppCompatActivity implements PokemonListAdapter.OnItemClickListener, PokemonListAdapter.OnLoadMoreListener, View.OnClickListener {
 
     @Inject
     PokeApiService pokeApiService;
@@ -50,18 +50,18 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
                 .injectPokemonListActivity(this);
 
         pokemonListViewModel = ViewModelProviders.of(this).get(PokemonListViewModel.class);
-        pokemonListViewModel.getMutablePokemonList().observe(this, new Observer<List<Result>>() {
+        pokemonListViewModel.getMutablePokemonList().observe(this, new Observer<List<PokemonItem>>() {
             @Override
-            public void onChanged(@Nullable List<Result> results) {
+            public void onChanged(@Nullable List<PokemonItem> pokemonItems) {
 
-                if (results == null) {
+                if (pokemonItems == null) {
                     hideLoadingAnimation();
                     hideLoadingTextGroup();
                     showErrorConnectionGroup();
                 }
                 else {
                     pokemonListAdapter.setLoaded();
-                    pokemonListAdapter.updateList(results);
+                    pokemonListAdapter.updateList(pokemonItems);
                     hideErrorConnectionGroup();
                     hideLoadingAnimation();
                     hideLoadingTextGroup();
@@ -93,12 +93,12 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
     }
 
     private void initViews() {
-        recyclerView = findViewById(R.id.recycler_view);
-        connectionErrorGroup = findViewById(R.id.connection_error_group);
-        loadingTextGroup = findViewById(R.id.loading_group);
-        loadingAnimationView = findViewById(R.id.loading_lottie_view);
-        noConnectionAnimationView = findViewById(R.id.no_connection_lottie_view);
-        whiteBackgroundView = findViewById(R.id.white_background_view);
+        recyclerView = findViewById(R.id.recyclerView);
+        connectionErrorGroup = findViewById(R.id.connectionErrorGroup);
+        loadingTextGroup = findViewById(R.id.loadingGroup);
+        loadingAnimationView = findViewById(R.id.loadingLottieView);
+        noConnectionAnimationView = findViewById(R.id.noConnectionLottieView);
+        whiteBackgroundView = findViewById(R.id.whiteBackgroundView);
     }
 
     private void setUpRecyclerView() {
@@ -143,10 +143,10 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
     @Override
     public void onItemClick(int position) {
         Intent intent = new Intent(PokemonListActivity.this, PokemonDetailActivity2.class);
-        List<Result> resultList = pokemonListViewModel.getMutablePokemonList().getValue();
-        intent.putExtra(URL, resultList.get(position).getUrl());
-        intent.putExtra(POKEMON_NAME, resultList.get(position).getName());
-        intent.putExtra(POKEMON_ID, position + 1);
+        List<PokemonItem> pokemonItemList = pokemonListViewModel.getMutablePokemonList().getValue();
+        intent.putExtra(ApiConstants.URL, pokemonItemList.get(position).getUrl());
+        intent.putExtra(ApiConstants.POKEMON_NAME, pokemonItemList.get(position).getName());
+        intent.putExtra(ApiConstants.POKEMON_ID, position + 1);
         startActivity(intent);
     }
 

@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName
 import com.test.pokedex.DataResponse
 
 @Entity
-data class Pokemon @JvmOverloads constructor(
+data class Pokemon(
 
         @Ignore
         @field:SerializedName("location_area_encounters")

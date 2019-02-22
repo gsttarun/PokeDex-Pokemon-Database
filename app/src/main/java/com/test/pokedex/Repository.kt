@@ -3,10 +3,12 @@ package com.test.pokedex
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.JsonSyntaxException
+import com.test.pokedex.data_manager.pokemonDao
+import com.test.pokedex.data_manager.pokemonListDAO
 import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon
+import com.test.pokedex.network.models.pokemon_list.PokemonItem
 import com.test.pokedex.network.pokeApiService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -49,29 +51,54 @@ object Repository {
 
     suspend fun savePokemon(pokemon: Pokemon) {
         withContext(Dispatchers.Default) {
-            pokemonDatabase.pokemonDao().savePokemon(pokemon)
+            pokemonDao.savePokemon(pokemon)
         }
     }
 
     suspend fun savePokemons(pokemonList: ArrayList<Pokemon>) {
         withContext(Dispatchers.Default) {
-            pokemonDatabase.pokemonDao().savePokemons(pokemonList)
+            pokemonDao.savePokemons(pokemonList)
         }
     }
 
     fun getPokemons(): LiveData<List<Pokemon>> {
-        return pokemonDatabase.pokemonDao().getAllPokemons()
+        return pokemonDao.getAllPokemons()
     }
 
     suspend fun getPokemonByIdFromDatabase(pokemonId: Int): LiveData<Pokemon> {
         return withContext(Dispatchers.Default) {
-            pokemonDatabase.pokemonDao().getPokemonById(pokemonId)
+            pokemonDao.getPokemonById(pokemonId)
         }
     }
 
     fun getPokemonByIdFromNetwork(pokemonId: Int): LiveData<Resource<Pokemon>> {
         return networkCall(pokeApiService.getPokemonByID(pokemonId))
     }
+
+    fun getPokemonListFromNetwork(): LiveData<Resource<ArrayList<PokemonItem>?>> {
+        return networkCall(pokeApiService.getPokemonList())
+    }
+
+    fun getPokemonListFromNetwork(limit: Int, offset: Int): LiveData<Resource<ArrayList<PokemonItem>?>> {
+        return networkCall(pokeApiService.getPokemonList(limit, offset))
+    }
+
+    suspend fun getPokemonListFromDatabase(): LiveData<ArrayList<PokemonItem>> {
+        return withContext(Dispatchers.Default) {
+            pokemonListDAO.getPokemonList()
+        }
+    }
+
+    suspend fun getPokemonListFromDatabase(limit: Int, offset: Int): Deferred<LiveData<ArrayList<PokemonItem>>> {
+        return GlobalScope.async { pokemonListDAO.getPokemonList(limit, offset) }
+    }
+
+    suspend fun savePokemonItems(pokemonList: ArrayList<PokemonItem>) {
+        withContext(Dispatchers.Default) {
+            pokemonListDAO.savePokemonList(pokemonList)
+        }
+    }
+
 }
 
 private fun getMessageFromThrowable(t: Throwable): String {

@@ -83,13 +83,13 @@ object Repository {
         return networkCall(pokeApiService.getPokemonList(limit, offset))
     }
 
-    suspend fun getPokemonListFromDatabase(): LiveData<ArrayList<PokemonItem>> {
+    suspend fun getPokemonListFromDatabase(): LiveData<List<PokemonItem>> {
         return withContext(Dispatchers.Default) {
             pokemonListDAO.getPokemonList()
         }
     }
 
-    suspend fun getPokemonListFromDatabase(limit: Int, offset: Int): Deferred<LiveData<ArrayList<PokemonItem>>> {
+    fun getPokemonListFromDatabase(limit: Int, offset: Int): Deferred<List<PokemonItem>> {
         return GlobalScope.async { pokemonListDAO.getPokemonList(limit, offset) }
     }
 

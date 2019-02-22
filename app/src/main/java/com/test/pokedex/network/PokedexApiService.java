@@ -1,7 +1,7 @@
 package com.test.pokedex.network;
 
 
-import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon2;
+import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon;
 
 import java.util.List;
 
@@ -16,8 +16,8 @@ import static com.test.pokedex.network.ApiConstants.POKEMON_NAME;
 public interface PokedexApiService {
 
     @GET("pokemon/{pokemon_id}")
-    Call<List<Pokemon2>> getPokemonByID(@Path(POKEMON_ID) int pokemonId);
+    Call<List<Pokemon>> getPokemonByID(@Path(POKEMON_ID) int pokemonId);
 
     @GET("pokemon/{pokemon_name}")
-    Call<List<Pokemon2>> getPokemonByName(@Path(POKEMON_NAME) String pokemonName);
+    Call<List<Pokemon>> getPokemonByName(@Path(POKEMON_NAME) String pokemonName);
 }

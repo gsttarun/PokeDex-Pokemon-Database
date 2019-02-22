@@ -1,6 +1,6 @@
 package com.test.pokedex;
 
-import android.support.v7.util.DiffUtil;
+import androidx.recyclerview.widget.DiffUtil;
 
 import com.test.pokedex.network.models.pokemon_list.Result;
 

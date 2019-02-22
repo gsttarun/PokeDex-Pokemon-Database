@@ -1,14 +1,7 @@
 package com.test.pokedex;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.constraint.Group;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -21,6 +14,14 @@ import com.test.pokedex.view_model.PokemonListViewModel;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.Group;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 public class PokemonListActivity extends AppCompatActivity implements PokemonListAdapter.OnItemClickListener, PokemonListAdapter.OnLoadMoreListener, View.OnClickListener, ApiConstants {
@@ -45,7 +46,7 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
         setContentView(R.layout.activity_pokemon_list);
 
-        PokeApplication.appComponent()
+        PokeApplication.Companion.appComponent()
                 .injectPokemonListActivity(this);
 
         pokemonListViewModel = ViewModelProviders.of(this).get(PokemonListViewModel.class);
@@ -101,7 +102,7 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
     }
 
     private void setUpRecyclerView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(PokemonListActivity.this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(PokemonListActivity.this, RecyclerView.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(pokemonListAdapter);
     }
@@ -141,7 +142,7 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
     @Override
     public void onItemClick(int position) {
-        Intent intent = new Intent(PokemonListActivity.this, PokemonDetailActivity.class);
+        Intent intent = new Intent(PokemonListActivity.this, PokemonDetailActivity2.class);
         List<Result> resultList = pokemonListViewModel.getMutablePokemonList().getValue();
         intent.putExtra(URL, resultList.get(position).getUrl());
         intent.putExtra(POKEMON_NAME, resultList.get(position).getName());

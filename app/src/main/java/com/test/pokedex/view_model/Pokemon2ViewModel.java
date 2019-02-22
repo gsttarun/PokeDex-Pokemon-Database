@@ -1,16 +1,14 @@
 package com.test.pokedex.view_model;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-
 import com.test.pokedex.PokeApplication;
+import com.test.pokedex.network.PokeApiService;
 import com.test.pokedex.network.PokedexApiService;
-import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon2;
-
-import java.util.List;
+import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -20,41 +18,43 @@ public class Pokemon2ViewModel extends ViewModel {
     @Inject
     PokedexApiService pokedexApiService; //cannot be private cause of dagger injection
 
-    private MutableLiveData<Pokemon2> pokemon2;
+    @Inject
+    PokeApiService pokeApiService;
+
+    private MutableLiveData<Pokemon> pokemon2;
 
     public Pokemon2ViewModel() {
         super();
-        PokeApplication.appComponent().injectPokemonViewModel(this);
+        PokeApplication.Companion.appComponent().injectPokemonViewModel(this);
     }
 
 
-
-    public MutableLiveData<Pokemon2> getPokemon2(int pokemonId) {
+    public MutableLiveData<Pokemon> getPokemon2(int pokemonId) {
 
         if (pokemon2 == null) {
-            pokemon2 = new MutableLiveData<Pokemon2>();
+            pokemon2 = new MutableLiveData<Pokemon>();
             loadPokemon(pokemonId);
         }
         return pokemon2;
     }
 
     private void loadPokemon(int pokemonId) {
-        Call<List<Pokemon2>> pokemonByID = pokedexApiService.getPokemonByID(pokemonId);
+        Call<Pokemon> pokemonByID = pokeApiService.getPokemonByID(pokemonId);
         pokemonByID.enqueue(callback);
     }
 
-    private Callback<List<Pokemon2>> callback = new Callback<List<Pokemon2>>() {
+    private Callback<Pokemon> callback = new Callback<Pokemon>() {
         @Override
-        public void onResponse(Call<List<Pokemon2>> call, Response<List<Pokemon2>> response) {
+        public void onResponse(Call<Pokemon> call, Response<Pokemon> response) {
             if (response.body() != null) {
-                pokemon2.postValue(response.body().get(0));
+                pokemon2.postValue(response.body());
             }
             else {// TODO: 4/6/18 show error
             }
         }
 
         @Override
-        public void onFailure(Call<List<Pokemon2>> call, Throwable t) {
+        public void onFailure(Call<Pokemon> call, Throwable t) {
         }
     };
 

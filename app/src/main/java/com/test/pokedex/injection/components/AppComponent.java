@@ -3,6 +3,7 @@ package com.test.pokedex.injection.components;
 
 import com.squareup.picasso.Picasso;
 import com.test.pokedex.PokemonDetailActivity;
+import com.test.pokedex.PokemonDetailActivity2;
 import com.test.pokedex.PokemonListActivity;
 import com.test.pokedex.adapters.PokemonListAdapter;
 import com.test.pokedex.injection.modules.ImageLoaderModule;
@@ -21,6 +22,8 @@ public interface AppComponent {
     void injectPokemonListActivity(PokemonListActivity pokemonListActivity);
 
     void injectPokemonDetailActivity(PokemonDetailActivity pokemonDetailActivity);
+
+    void injectPokemonDetailActivity(PokemonDetailActivity2 pokemonDetailActivity);
 
     void injectPokemonListAdapter(PokemonListAdapter pokemonListAdapter);
 

@@ -1,9 +1,6 @@
 package com.test.pokedex.view_model;
 
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-
 import com.test.pokedex.PokeApplication;
 import com.test.pokedex.network.PokeApiService;
 import com.test.pokedex.network.models.pokemon_list.PokemonListResponse;
@@ -14,6 +11,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,7 +29,7 @@ public class PokemonListViewModel extends ViewModel {
 
     public PokemonListViewModel() {
         super();
-        PokeApplication.appComponent().injectPokemonListViewModel(this);
+        PokeApplication.Companion.appComponent().injectPokemonListViewModel(this);
     }
 
     public List<Result> getPokemonList() {

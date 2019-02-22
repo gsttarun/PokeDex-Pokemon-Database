@@ -2,10 +2,10 @@ package com.test.pokedex.adapters;
 
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +59,7 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Inject
     public PokemonListAdapter(Context context) {
         results = new ArrayList<>();
-        PokeApplication.appComponent().injectPokemonListAdapter(this);
+        PokeApplication.Companion.appComponent().injectPokemonListAdapter(this);
     }
 
     @NonNull

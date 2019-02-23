@@ -16,8 +16,8 @@ interface PokemonListDAO {
     @Query("Select * from PokemonItem")
     fun getPokemonList(): LiveData<List<PokemonItem>>
 
-    @Query("Select * from PokemonItem limit :limit,:offset")
-    fun getPokemonList(limit: Int, offset: Int): List<PokemonItem>
+    @Query("Select * from PokemonItem limit :limit offset :offset")
+    fun getPokemonList(limit: Int, offset: Int): LiveData<List<PokemonItem>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun savePokemonList(pokemonsList: ArrayList<PokemonItem>)

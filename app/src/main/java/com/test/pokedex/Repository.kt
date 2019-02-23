@@ -89,8 +89,8 @@ object Repository {
         }
     }
 
-    fun getPokemonListFromDatabase(limit: Int, offset: Int): Deferred<List<PokemonItem>> {
-        return GlobalScope.async { pokemonListDAO.getPokemonList(limit, offset) }
+    suspend fun getPokemonListFromDatabase(limit: Int, offset: Int): LiveData<List<PokemonItem>> {
+        return withContext(Dispatchers.Default) { pokemonListDAO.getPokemonList(limit, offset) }
     }
 
     suspend fun savePokemonItems(pokemonList: ArrayList<PokemonItem>) {

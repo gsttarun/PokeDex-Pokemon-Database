@@ -13,6 +13,7 @@ import com.test.pokedex.network.ApiConstants
 import com.test.pokedex.network.PokeApiService
 import com.test.pokedex.network.models.pokemon_list.PokemonItem
 import com.test.pokedex.view_model.PokemonListViewModel
+import com.test.pokedex.view_model.PokemonListViewModel2
 import kotlinx.android.synthetic.main.activity_pokemon_list.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,10 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
     private val pokemonListViewModel: PokemonListViewModel by lazy {
         ViewModelProviders.of(this).get(PokemonListViewModel::class.java)
     }
+
+    private val pokemonListViewModel2: PokemonListViewModel2 by lazy {
+        ViewModelProviders.of(this).get(PokemonListViewModel2::class.java)
+    }
     private val networkObserver = Observer<Resource<ArrayList<PokemonItem>?>> { responseResource ->
         when (responseResource.status) {
             Status.SUCCESS -> {
@@ -58,7 +63,7 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
 
         PokeApplication.appComponent()!!.injectPokemonListActivity(this)
 
-        pokemonListViewModel.mutablePokemonList.observe(this, Observer { pokemonItems ->
+        pokemonListViewModel2.getPokemonList().observe(this, Observer {pokemonItems ->
             if (pokemonItems == null) {
                 hideLoadingAnimation()
                 hideLoadingTextGroup()
@@ -71,6 +76,19 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
                 hideLoadingTextGroup()
             }
         })
+       /* pokemonListViewModel.mutablePokemonList.observe(this, Observer { pokemonItems ->
+            if (pokemonItems == null) {
+                hideLoadingAnimation()
+                hideLoadingTextGroup()
+                showErrorConnectionGroup()
+            } else {
+                pokemonListAdapter.setLoaded()
+                pokemonListAdapter.updateList(pokemonItems)
+                hideErrorConnectionGroup()
+                hideLoadingAnimation()
+                hideLoadingTextGroup()
+            }
+        })*/
 
         setListeners()
 
@@ -81,7 +99,7 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
         playLoadingAnimation()
         showLoadingTextGroup()
 
-        launch {
+       /* launch {
             Repository.getPokemonListFromDatabase().observe(this@PokemonListActivity2, Observer {
                 if (it == null) {
                     Repository.getPokemonListFromNetwork().observe(this@PokemonListActivity2, networkObserver)
@@ -93,7 +111,7 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
                     hideLoadingTextGroup()
                 }
             })
-        }
+        }*/
         //        hideErrorConnectionGroup();
     }
 
@@ -156,8 +174,8 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
     }
 
     override fun onLoadMore() {
-        pokemonListViewModel.loadMorePokemons()
-
+//        pokemonListViewModel.loadMorePokemons()
+        pokemonListViewModel2.loadMore()
     }
 
     override fun onClick(v: View) {

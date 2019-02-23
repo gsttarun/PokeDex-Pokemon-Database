@@ -7,6 +7,7 @@ import com.test.pokedex.PokemonDetailActivity2
 import com.test.pokedex.PokemonListActivity
 import com.test.pokedex.PokemonListActivity2
 import com.test.pokedex.adapters.PokemonListAdapter
+import com.test.pokedex.adapters.PokemonListAdapter2
 import com.test.pokedex.injection.modules.ImageLoaderModule
 import com.test.pokedex.injection.modules.PokeApiServiceModule
 import com.test.pokedex.view_model.Pokemon2ViewModel
@@ -29,6 +30,8 @@ interface AppComponent {
     fun injectPokemonDetailActivity(pokemonDetailActivity: PokemonDetailActivity2)
 
     fun injectPokemonListAdapter(pokemonListAdapter: PokemonListAdapter)
+
+    fun injectPokemonListAdapter(pokemonListAdapter: PokemonListAdapter2)
 
     fun injectPokemonViewModel(pokemon2ViewModel: Pokemon2ViewModel)
 

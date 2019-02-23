@@ -22,4 +22,7 @@ interface PokemonDAO {
     @Query("Select * from Pokemon where id = :pokemonId")
     fun getPokemonById(pokemonId: Int): LiveData<Pokemon>
 
+    @Query("Select * from Pokemon where name = :name")
+    fun getPokemonByName(name: String): LiveData<Pokemon>
+
 }

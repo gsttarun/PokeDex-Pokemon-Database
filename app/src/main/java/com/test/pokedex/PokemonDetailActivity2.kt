@@ -25,7 +25,7 @@ class PokemonDetailActivity2 : AppCompatActivity(), CoroutineScope {
         get() = Dispatchers.Main
 
     @Inject
-    public lateinit var imageLoader: ImageLoader
+    lateinit var imageLoader: ImageLoader
 
     private var pokemonUrl: String = ""
     private var pokemonName: String = ""
@@ -98,9 +98,9 @@ class PokemonDetailActivity2 : AppCompatActivity(), CoroutineScope {
              }
          })*/
         launch {
-            Repository.getPokemonByIdFromDatabase(pokemonId).observe(this@PokemonDetailActivity2, Observer {
+            Repository.getPokemonByNameFromDatabase(pokemonName).observe(this@PokemonDetailActivity2, Observer {
                 if (it == null) {
-                    Repository.getPokemonByIdFromNetwork(pokemonId).observe(this@PokemonDetailActivity2, networkObserver)
+                    Repository.getPokemonByNameFromNetwork(pokemonName).observe(this@PokemonDetailActivity2, networkObserver)
                 } else
                     showPokemon2(it)
             })
@@ -125,7 +125,7 @@ class PokemonDetailActivity2 : AppCompatActivity(), CoroutineScope {
 
         Timber.v("Image URL = $imageUrl")
 
-        imageLoader!!.loadImage(imageUrl, pokemon_img, img_loading_view)
+        imageLoader.loadImage(imageUrl, pokemon_img, img_loading_view)
         pokemon_name.text = pokemon2.name
         pokemon_id.text = String.format("#%s", pokemon2.id)
     }
@@ -142,7 +142,7 @@ class PokemonDetailActivity2 : AppCompatActivity(), CoroutineScope {
 
         Timber.v("Image URL = $imageUrl")
 
-        imageLoader!!.loadImage(imageUrl, pokemon_img, img_loading_view)
+        imageLoader.loadImage(imageUrl, pokemon_img, img_loading_view)
 
         pokemon_name.text = pokemon!!.name
         pokemon_id.text = String.format("# %d", pokemon!!.id)

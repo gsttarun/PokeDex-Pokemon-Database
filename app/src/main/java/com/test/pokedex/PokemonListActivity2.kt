@@ -8,22 +8,28 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.test.pokedex.adapters.PokemonListAdapter
+import com.test.pokedex.adapters.PokemonListAdapter2
 import com.test.pokedex.network.ApiConstants
 import com.test.pokedex.network.PokeApiService
 import com.test.pokedex.network.models.pokemon_list.PokemonItem
-import com.test.pokedex.view_model.PokemonListViewModel
 import com.test.pokedex.view_model.PokemonListViewModel2
 import kotlinx.android.synthetic.main.activity_pokemon_list.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 
-class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAdapter.OnItemClickListener, PokemonListAdapter.OnLoadMoreListener, View.OnClickListener {
+class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, RecyclerViewPagingAdapter.OnLoadMoreListener, View.OnClickListener, PokemonListAdapter2.PokemonClickListener {
+    override fun onPokemonClick(position: Int, pokemonItem: PokemonItem) {
+        val intent = Intent(this@PokemonListActivity2, PokemonDetailActivity2::class.java)
+        intent.putExtra(ApiConstants.URL, pokemonItem.url)
+        intent.putExtra(ApiConstants.POKEMON_NAME, pokemonItem.name)
+        intent.putExtra(ApiConstants.POKEMON_ID, position + 1)
+        startActivity(intent)
+    }
+
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -31,30 +37,14 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
     @Inject
     lateinit var pokeApiService: PokeApiService
 
-    @Inject
-    lateinit var pokemonListAdapter: PokemonListAdapter
-
-    private val pokemonListViewModel: PokemonListViewModel by lazy {
-        ViewModelProviders.of(this).get(PokemonListViewModel::class.java)
+    private val pokemonListAdapter2: PokemonListAdapter2 by lazy {
+        PokemonListAdapter2(this)
     }
 
     private val pokemonListViewModel2: PokemonListViewModel2 by lazy {
         ViewModelProviders.of(this).get(PokemonListViewModel2::class.java)
     }
-    private val networkObserver = Observer<Resource<ArrayList<PokemonItem>?>> { responseResource ->
-        when (responseResource.status) {
-            Status.SUCCESS -> {
-                responseResource.data?.let {
-                    launch {
-                        Repository.savePokemonItems(it)
-                    }
-                }
-            }
-            Status.ERROR -> {
 
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,32 +53,22 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
 
         PokeApplication.appComponent()!!.injectPokemonListActivity(this)
 
-        pokemonListViewModel2.getPokemonList().observe(this, Observer {pokemonItems ->
-            if (pokemonItems == null) {
-                hideLoadingAnimation()
-                hideLoadingTextGroup()
-                showErrorConnectionGroup()
-            } else {
-                pokemonListAdapter.setLoaded()
-                pokemonListAdapter.updateList(pokemonItems)
-                hideErrorConnectionGroup()
-                hideLoadingAnimation()
-                hideLoadingTextGroup()
+        pokemonListViewModel2.getPokemonList().observe(this, Observer { pokemonItems ->
+            pokemonListAdapter2.addData(pokemonItems) { wiewTypeToShow ->
+                when (wiewTypeToShow) {
+                    ViewTypeToShow.LIST_VIEW -> {
+                        hideErrorConnectionGroup()
+                        hideLoadingAnimation()
+                        hideLoadingTextGroup()
+                    }
+                    ViewTypeToShow.EMPTY_VIEW -> {
+                        hideLoadingAnimation()
+                        hideLoadingTextGroup()
+                        showErrorConnectionGroup()
+                    }
+                }
             }
         })
-       /* pokemonListViewModel.mutablePokemonList.observe(this, Observer { pokemonItems ->
-            if (pokemonItems == null) {
-                hideLoadingAnimation()
-                hideLoadingTextGroup()
-                showErrorConnectionGroup()
-            } else {
-                pokemonListAdapter.setLoaded()
-                pokemonListAdapter.updateList(pokemonItems)
-                hideErrorConnectionGroup()
-                hideLoadingAnimation()
-                hideLoadingTextGroup()
-            }
-        })*/
 
         setListeners()
 
@@ -99,20 +79,6 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
         playLoadingAnimation()
         showLoadingTextGroup()
 
-       /* launch {
-            Repository.getPokemonListFromDatabase().observe(this@PokemonListActivity2, Observer {
-                if (it == null) {
-                    Repository.getPokemonListFromNetwork().observe(this@PokemonListActivity2, networkObserver)
-                } else {
-                    pokemonListAdapter.setLoaded()
-                    pokemonListAdapter.updateList(it)
-                    hideErrorConnectionGroup()
-                    hideLoadingAnimation()
-                    hideLoadingTextGroup()
-                }
-            })
-        }*/
-        //        hideErrorConnectionGroup();
     }
 
     private fun setListeners() {
@@ -120,15 +86,13 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
     }
 
     private fun setUpAdapter() {
-        pokemonListAdapter.setOnLoadMoreListener(this)
-        pokemonListAdapter.setOnItemClickListener(this)
-        pokemonListAdapter.setRecyclerView(recyclerView)
+        pokemonListAdapter2.setUpLoadMoreListener(recyclerView, this)
     }
 
     private fun setUpRecyclerView() {
         val layoutManager = LinearLayoutManager(this@PokemonListActivity2, RecyclerView.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
-        recyclerView.adapter = pokemonListAdapter
+        recyclerView.adapter = pokemonListAdapter2
     }
 
 
@@ -163,16 +127,6 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
         loadingLottieView.visibility = View.GONE
     }
 
-
-    override fun onItemClick(position: Int) {
-        val intent = Intent(this@PokemonListActivity2, PokemonDetailActivity2::class.java)
-        val pokemonItemList = pokemonListViewModel.mutablePokemonList.value
-        intent.putExtra(ApiConstants.URL, pokemonItemList!![position].url)
-        intent.putExtra(ApiConstants.POKEMON_NAME, pokemonItemList[position].name)
-        intent.putExtra(ApiConstants.POKEMON_ID, position + 1)
-        startActivity(intent)
-    }
-
     override fun onLoadMore() {
 //        pokemonListViewModel.loadMorePokemons()
         pokemonListViewModel2.loadMore()
@@ -182,6 +136,6 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, PokemonListAda
         hideErrorConnectionGroup()
         showLoadingTextGroup()
         playLoadingAnimation()
-        pokemonListViewModel.loadInitialPokemonList()
+//        pokemonListViewModel.loadInitialPokemonList()
     }
 }

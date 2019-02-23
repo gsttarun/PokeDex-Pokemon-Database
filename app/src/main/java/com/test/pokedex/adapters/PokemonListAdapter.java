@@ -54,7 +54,7 @@ public class PokemonListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.onItemClickListener = onItemClickListener;
     }
 
-    private List<PokemonItem> pokemonItems;
+    public List<PokemonItem> pokemonItems;
 
     @Inject
     public PokemonListAdapter(Context context) {

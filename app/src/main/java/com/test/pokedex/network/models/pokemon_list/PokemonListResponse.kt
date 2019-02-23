@@ -14,9 +14,9 @@ data class PokemonListResponse(
         var previous: Any? = null,
 
         @SerializedName("results")
-        var pokemonItems: ArrayList<PokemonItem>? = null
-) : DataResponse<ArrayList<PokemonItem>?> {
-    override fun retrieveData(): ArrayList<PokemonItem>? {
+        var pokemonItems: ArrayList<PokemonItem?>? = null
+) : DataResponse<ArrayList<PokemonItem?>?> {
+    override fun retrieveData(): ArrayList<PokemonItem?>? {
         return pokemonItems
     }
 }

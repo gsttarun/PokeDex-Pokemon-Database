@@ -1,6 +1,7 @@
 package com.test.pokedex
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.JsonSyntaxException
 import com.test.pokedex.data_manager.pokemonDao
@@ -8,7 +9,10 @@ import com.test.pokedex.data_manager.pokemonListDAO
 import com.test.pokedex.network.models.pokedex.pokemon2.Pokemon
 import com.test.pokedex.network.models.pokemon_list.PokemonItem
 import com.test.pokedex.network.pokeApiService
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -71,15 +75,25 @@ object Repository {
         }
     }
 
+    suspend fun getPokemonByNameFromDatabase(pokemonName: String): LiveData<Pokemon> {
+        return withContext(Dispatchers.Default) {
+            pokemonDao.getPokemonByName(pokemonName)
+        }
+    }
+
     fun getPokemonByIdFromNetwork(pokemonId: Int): LiveData<Resource<Pokemon>> {
         return networkCall(pokeApiService.getPokemonByID(pokemonId))
     }
 
-    fun getPokemonListFromNetwork(): LiveData<Resource<ArrayList<PokemonItem>?>> {
+    fun getPokemonByNameFromNetwork(pokemonName: String): LiveData<Resource<Pokemon>> {
+        return networkCall(pokeApiService.getPokemonByName(pokemonName))
+    }
+
+    fun getPokemonListFromNetwork(): LiveData<Resource<ArrayList<PokemonItem?>?>> {
         return networkCall(pokeApiService.getPokemonList())
     }
 
-    fun getPokemonListFromNetwork(limit: Int, offset: Int): LiveData<Resource<ArrayList<PokemonItem>?>> {
+    fun getPokemonListFromNetwork(limit: Int, offset: Int): LiveData<Resource<ArrayList<PokemonItem?>?>> {
         return networkCall(pokeApiService.getPokemonList(limit, offset))
     }
 
@@ -89,11 +103,37 @@ object Repository {
         }
     }
 
-    suspend fun getPokemonListFromDatabase(limit: Int, offset: Int): LiveData<List<PokemonItem>> {
-        return withContext(Dispatchers.Default) { pokemonListDAO.getPokemonList(limit, offset) }
+    fun getPokemonListFromDatabase(limit: Int, offset: Int): LiveData<ArrayList<PokemonItem?>?> {
+        val pokemonItemLiveData = MediatorLiveData<ArrayList<PokemonItem?>?>()
+        val pokemonListFromDatabase = pokemonListDAO.getPokemonList(limit, offset)
+        pokemonItemLiveData.addSource(pokemonListFromDatabase) {
+            pokemonItemLiveData.removeSource(pokemonListFromDatabase)
+            if (it.isNullOrEmpty()) {
+                val networkData = Repository.getPokemonListFromNetwork(limit, offset)
+                pokemonItemLiveData.addSource(networkData) { responseResource ->
+                    when (responseResource.status) {
+                        Status.SUCCESS -> {
+                            pokemonItemLiveData.removeSource(networkData)
+                            if (!responseResource.data.isNullOrEmpty()) {
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    Repository.savePokemonItems(responseResource.data)
+                                }
+                                pokemonItemLiveData.postValue(responseResource.data)
+                            }
+                        }
+                        Status.ERROR -> {
+                            pokemonItemLiveData.removeSource(networkData)
+                        }
+                    }
+                }
+            } else {
+                pokemonItemLiveData.postValue(ArrayList(it))
+            }
+        }
+        return pokemonItemLiveData
     }
 
-    suspend fun savePokemonItems(pokemonList: ArrayList<PokemonItem>) {
+    suspend fun savePokemonItems(pokemonList: ArrayList<PokemonItem?>?) {
         withContext(Dispatchers.Default) {
             pokemonListDAO.savePokemonList(pokemonList)
         }

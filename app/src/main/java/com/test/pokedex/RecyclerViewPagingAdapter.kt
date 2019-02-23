@@ -33,22 +33,24 @@ abstract class RecyclerViewPagingAdapter<T> : RecyclerView.Adapter<RecyclerView.
                 return object : RecyclerView.ViewHolder(view) {}
             }
             val rL = RelativeLayout(parent.context)
-            val progressBar = ProgressBar(parent.context)
-            progressBar.isIndeterminate = true
-            progressBar.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                    RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
-                addRule(RelativeLayout.CENTER_IN_PARENT)
+            val progressBar = ProgressBar(parent.context).apply {
+                isIndeterminate = true
+                layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                        RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
+                    addRule(RelativeLayout.CENTER_IN_PARENT)
+                }
             }
             when (orientation) {
                 Orientation.VERTICAL -> {
                     rL.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
                             RecyclerView.LayoutParams.WRAP_CONTENT)
-
+                    rL.minimumHeight = 200
                     rL.addView(progressBar)
                 }
                 Orientation.HORIZONTAL -> {
                     rL.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT,
                             RecyclerView.LayoutParams.MATCH_PARENT)
+                    rL.minimumWidth = 200
                     rL.addView(progressBar)
                 }
             }

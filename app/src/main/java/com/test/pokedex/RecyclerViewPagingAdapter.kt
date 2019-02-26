@@ -76,15 +76,15 @@ abstract class RecyclerViewPagingAdapter<T> : RecyclerView.Adapter<RecyclerView.
         if (arrayList.size > 0) {
             list.let {
                 //removing loading item
-                removeLoadingItem()
-                val insertLocation = arrayList.count()
-                arrayList.addAll(list)
+                val insertLocation = arrayList.count() - 1
+                arrayList.addAll(insertLocation, list)
                 notifyItemRangeInserted(insertLocation, list.size - 1)
+                removeLoadingItem()
             }
         } else {
             arrayList = list
             completion?.invoke(ViewTypeToShow.LIST_VIEW)
-            notifyItemRangeInserted(0, list.size)
+            notifyItemRangeInserted(0, list.size - 1)
 //            notifyDataSetChanged()
         }
     }
@@ -100,7 +100,7 @@ abstract class RecyclerViewPagingAdapter<T> : RecyclerView.Adapter<RecyclerView.
         notifyDataSetChanged()
     }
 
-    internal fun removeLoadingItem() {
+    private fun removeLoadingItem() {
         if (arrayList.size > 0) {
             val removePosition = arrayList.count() - 1
             arrayList.removeAt(removePosition)

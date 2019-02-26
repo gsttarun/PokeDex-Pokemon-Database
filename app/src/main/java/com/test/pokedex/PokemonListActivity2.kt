@@ -3,6 +3,7 @@ package com.test.pokedex
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -13,6 +14,9 @@ import com.test.pokedex.network.ApiConstants
 import com.test.pokedex.network.PokeApiService
 import com.test.pokedex.network.models.pokemon_list.PokemonItem
 import com.test.pokedex.view_model.PokemonListViewModel2
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
+import jp.wasabeef.recyclerview.animators.SlideInRightAnimator
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator
 import kotlinx.android.synthetic.main.activity_pokemon_list.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -93,6 +97,8 @@ class PokemonListActivity2 : AppCompatActivity(), CoroutineScope, RecyclerViewPa
         val layoutManager = LinearLayoutManager(this@PokemonListActivity2, RecyclerView.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = pokemonListAdapter2
+
+        recyclerView.itemAnimator = SlideInLeftAnimator()
     }
 
 

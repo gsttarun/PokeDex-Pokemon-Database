@@ -1,5 +1,6 @@
 package com.test.pokedex
 
+import android.provider.Settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -75,10 +76,32 @@ object Repository {
         }
     }
 
-    suspend fun getPokemonByNameFromDatabase(pokemonName: String): LiveData<Pokemon> {
-        return withContext(Dispatchers.Default) {
-            pokemonDao.getPokemonByName(pokemonName)
+    fun getPokemonByNameFromDatabase(pokemonName: String): LiveData<Pokemon> {
+        val pokemonData = MediatorLiveData<Pokemon>()
+        pokemonData.addSource(pokemonDao.getPokemonByName(pokemonName)) {
+            if (it != null) {
+                pokemonData.postValue(it)
+            } else {
+                val pokemonByNameFromNetwork = getPokemonByNameFromNetwork(pokemonName)
+                pokemonData.addSource(pokemonByNameFromNetwork) { responseResource ->
+                    when (responseResource.status) {
+                        Status.SUCCESS -> {
+                            pokemonData.removeSource(pokemonByNameFromNetwork)
+                            responseResource.data?.let {
+                                GlobalScope.launch(Dispatchers.Default) {
+                                    pokemonDao.savePokemon(it)
+                                    pokemonListDAO.addIdToPokemon(it.name, it.id)
+                                }
+                            }
+                        }
+                        Status.ERROR -> {
+                            pokemonData.removeSource(pokemonByNameFromNetwork)
+                        }
+                    }
+                }
+            }
         }
+        return pokemonData
     }
 
     fun getPokemonByIdFromNetwork(pokemonId: Int): LiveData<Resource<Pokemon>> {

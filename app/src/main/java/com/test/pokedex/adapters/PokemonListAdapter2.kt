@@ -41,7 +41,7 @@ class PokemonListAdapter2(val pokemonClickListener: PokemonClickListener) : Recy
                 pokemonNameTextView.text = upperString
                 val imagePath = "https://img.pokemondb.net/sprites/x-y/normal/$name.png"
                 imageLoader.loadImage(imagePath, pokemonImageView, null)
-                holder.pokemonIdTextView.text = String.format("%d", position + 1)
+                holder.pokemonIdTextView.text = String.format("%d", pokemonItem.id)
             }
         }
     }

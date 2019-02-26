@@ -56,11 +56,11 @@ data class Pokemon(
         var moves: List<MovesItem?>? = null,
 
         @field:SerializedName("name")
-        var name: String? = null,
+        var name: String = "",
 
         @field:PrimaryKey
         @field:SerializedName("id")
-        var id: Int? = null,
+        var id: Int = 0,
 
         @field:Ignore
         @field:SerializedName("forms")

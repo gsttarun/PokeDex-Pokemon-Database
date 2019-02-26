@@ -7,9 +7,9 @@ import com.google.gson.annotations.SerializedName
 @Entity
 data class PokemonItem(
 
-        @PrimaryKey(autoGenerate = true)
         var id: Int,
 
+        @PrimaryKey
         @SerializedName("name")
         var name: String,
 

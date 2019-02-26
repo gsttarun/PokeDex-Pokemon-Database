@@ -25,4 +25,7 @@ interface PokemonListDAO {
     @Query("Select * from PokemonItem where id = :pokemonId")
     fun getPokemonItemById(pokemonId: Int): LiveData<PokemonItem>
 
+    @Query("update PokemonItem set id=:id where name=:pokemonName")
+    fun addIdToPokemon(pokemonName: String, id: Int)
+
 }

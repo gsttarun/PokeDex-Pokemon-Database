@@ -1,10 +1,7 @@
 package com.test.pokedex.data_manager
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.test.pokedex.network.models.pokemon_list.PokemonItem
 
 @Dao
@@ -28,4 +25,9 @@ interface PokemonListDAO {
     @Query("update PokemonItem set id=:id where name=:pokemonName")
     fun addIdToPokemon(pokemonName: String, id: Int)
 
+    @Query("Delete from PokemonItem where name = :pokemonName")
+    fun deletePokemonItem(pokemonName: String): Int
+
+    @Delete
+    fun deletePokemonItem(pokemonItem: PokemonItem): Int
 }

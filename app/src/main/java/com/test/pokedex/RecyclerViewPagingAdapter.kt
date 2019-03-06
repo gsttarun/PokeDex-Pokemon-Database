@@ -76,10 +76,10 @@ abstract class RecyclerViewPagingAdapter<T> : RecyclerView.Adapter<RecyclerView.
         if (arrayList.size > 0) {
             list.let {
                 //removing loading item
-                val insertLocation = arrayList.count() - 1
+                removeLoadingItem()
+                val insertLocation = arrayList.count()
                 arrayList.addAll(insertLocation, list)
                 notifyItemRangeInserted(insertLocation, list.size - 1)
-                removeLoadingItem()
             }
         } else {
             arrayList = list

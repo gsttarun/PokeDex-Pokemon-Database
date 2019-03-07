@@ -2,30 +2,29 @@ package com.test.pokedex;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.constraint.Group;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.test.pokedex.adapters.PokemonListAdapter;
 import com.test.pokedex.network.ApiConstants;
 import com.test.pokedex.network.PokeApiService;
-import com.test.pokedex.network.models.pokemon_list.PokemonListResponse;
-import com.test.pokedex.network.models.pokemon_list.Result;
+import com.test.pokedex.network.models.pokemon_list.PokemonItem;
+import com.test.pokedex.view_model.PokemonListViewModel;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import timber.log.Timber;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.Group;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
-public class PokemonListActivity extends AppCompatActivity implements PokemonListAdapter.OnItemClickListener, PokemonListAdapter.OnLoadMoreListener, View.OnClickListener,ApiConstants {
+public class PokemonListActivity extends AppCompatActivity implements PokemonListAdapter.OnItemClickListener, PokemonListAdapter.OnLoadMoreListener, View.OnClickListener {
 
     @Inject
     PokeApiService pokeApiService;
@@ -33,11 +32,11 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
     @Inject
     PokemonListAdapter pokemonListAdapter;
 
+    PokemonListViewModel pokemonListViewModel;
+
     RecyclerView recyclerView;
-    private List<Result> results;
-    private String nextUrl = null;
     Group connectionErrorGroup, loadingTextGroup;
-    LottieAnimationView loadingAnimationView;
+    LottieAnimationView loadingAnimationView, noConnectionAnimationView;
     View whiteBackgroundView;
 
 
@@ -47,9 +46,28 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
         setContentView(R.layout.activity_pokemon_list);
 
-        PokeApplication.get(this)
-                .appComponent()
+        PokeApplication.Companion.appComponent()
                 .injectPokemonListActivity(this);
+
+        pokemonListViewModel = ViewModelProviders.of(this).get(PokemonListViewModel.class);
+        pokemonListViewModel.getMutablePokemonList().observe(this, new Observer<List<PokemonItem>>() {
+            @Override
+            public void onChanged(@Nullable List<PokemonItem> pokemonItems) {
+
+                if (pokemonItems == null) {
+                    hideLoadingAnimation();
+                    hideLoadingTextGroup();
+                    showErrorConnectionGroup();
+                }
+                else {
+                    pokemonListAdapter.setLoaded();
+                    pokemonListAdapter.updateList(pokemonItems);
+                    hideErrorConnectionGroup();
+                    hideLoadingAnimation();
+                    hideLoadingTextGroup();
+                }
+            }
+        });
 
         initViews();
 
@@ -59,7 +77,9 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
 
         setUpAdapter();
 
-        callPokemonListAPI();
+        playLoadingAnimation();
+        showLoadingTextGroup();
+//        hideErrorConnectionGroup();
     }
 
     private void setListeners() {
@@ -73,49 +93,31 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
     }
 
     private void initViews() {
-        recyclerView = findViewById(R.id.recycler_view);
-        connectionErrorGroup = findViewById(R.id.connection_error_group);
-        loadingTextGroup = findViewById(R.id.loading_group);
-        loadingAnimationView = findViewById(R.id.loading_lottie_view);
-        whiteBackgroundView = findViewById(R.id.white_background_view);
+        recyclerView = findViewById(R.id.recyclerView);
+        connectionErrorGroup = findViewById(R.id.connectionErrorGroup);
+        loadingTextGroup = findViewById(R.id.loadingGroup);
+        loadingAnimationView = findViewById(R.id.loadingLottieView);
+        noConnectionAnimationView = findViewById(R.id.noConnectionLottieView);
+        whiteBackgroundView = findViewById(R.id.whiteBackgroundView);
     }
 
     private void setUpRecyclerView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(PokemonListActivity.this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(PokemonListActivity.this, RecyclerView.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(pokemonListAdapter);
     }
 
-    private void callPokemonListAPI() {
-        playLoadingAnimation();
-        showLoadingTextGroup();
-
-        Call<PokemonListResponse> pokemonList = pokeApiService.getPokemonList();
-
-        pokemonList.enqueue(new Callback<PokemonListResponse>() {
-            @Override
-            public void onResponse(Call<PokemonListResponse> call, Response<PokemonListResponse> response) {
-                if (response.body() != null) {
-                    results = response.body().getResults();
-                    nextUrl = response.body().getNext();
-                    pokemonListAdapter.setResults(results);
-                    hideLoadingTextGroup();
-                    hideLoadingAnimation();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<PokemonListResponse> call, Throwable t) {
-
-            }
-        });
-    }
 
     private void showErrorConnectionGroup() {
         connectionErrorGroup.setVisibility(View.VISIBLE);
+        loadingAnimationView.playAnimation();
+        whiteBackgroundView.setClickable(true);
+        whiteBackgroundView.setFocusableInTouchMode(true);
     }
 
     private void hideErrorConnectionGroup() {
+        whiteBackgroundView.setClickable(false);
+        whiteBackgroundView.setFocusableInTouchMode(false);
         connectionErrorGroup.setVisibility(View.GONE);
     }
 
@@ -137,50 +139,27 @@ public class PokemonListActivity extends AppCompatActivity implements PokemonLis
         loadingAnimationView.setVisibility(View.GONE);
     }
 
-    private void loadMorePokemons() {
-
-        //Generating more data
-        Call<PokemonListResponse> pokemonListByURL = pokeApiService.getPokemonListByURL(nextUrl);
-        pokemonListByURL.enqueue(new Callback<PokemonListResponse>() {
-            @Override
-            public void onResponse(Call<PokemonListResponse> call, final Response<PokemonListResponse> response) {
-//                        results.addAll(response.body().getResults());
-                pokemonListAdapter.setLoaded();
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        pokemonListAdapter.addResults(response.body().getResults());
-                    }
-                });
-                nextUrl = response.body().getNext();
-//                results.remove(results.size() - 1);
-//                pokemonListAdapter.notifyItemRemoved(results.size());
-            }
-
-            @Override
-            public void onFailure(Call<PokemonListResponse> call, Throwable t) {
-                Timber.e("getPokemonList API fail :" + t.getMessage());
-            }
-        });
-    }
 
     @Override
     public void onItemClick(int position) {
-        Intent intent = new Intent(PokemonListActivity.this, PokemonDetailActivity.class);
-        intent.putExtra(URL, results.get(position).getUrl());
-        intent.putExtra(POKEMON_NAME, results.get(position).getName());
-        intent.putExtra(POKEMON_ID, position + 1);
+        Intent intent = new Intent(PokemonListActivity.this, PokemonDetailActivity2.class);
+        List<PokemonItem> pokemonItemList = pokemonListViewModel.getMutablePokemonList().getValue();
+        intent.putExtra(ApiConstants.URL, pokemonItemList.get(position).getUrl());
+        intent.putExtra(ApiConstants.POKEMON_NAME, pokemonItemList.get(position).getName());
+        intent.putExtra(ApiConstants.POKEMON_ID, position + 1);
         startActivity(intent);
     }
 
     @Override
     public void onLoadMore() {
-        loadMorePokemons();
+        pokemonListViewModel.loadMorePokemons();
     }
 
     @Override
     public void onClick(View v) {
-        callPokemonListAPI();
+        hideErrorConnectionGroup();
+        showLoadingTextGroup();
+        playLoadingAnimation();
+        pokemonListViewModel.loadInitialPokemonList();
     }
 }

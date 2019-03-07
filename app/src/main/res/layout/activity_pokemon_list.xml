@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,29 +7,32 @@
     android:layout_height="match_parent"
     tools:context=".PokemonListActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <View
-        android:id="@+id/white_background_view"
+        android:id="@+id/whiteBackgroundView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
+        android:clickable="false"
+        android:focusableInTouchMode="false"
         android:foreground="?android:attr/selectableItemBackground"/>
 
     <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/no_connection_lottie_view"
+        android:id="@+id/noConnectionLottieView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="20dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@id/opps_text"
         app:layout_constraintDimensionRatio="H,3:1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.35"
         app:layout_constraintVertical_chainStyle="packed"
-        app:lottie_autoPlay="true"
+        app:lottie_autoPlay="false"
         app:lottie_fileName="no_connection.json"
         app:lottie_loop="false"/>
 
@@ -41,7 +44,7 @@
         app:layout_constraintBottom_toTopOf="@id/text3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/no_connection_lottie_view"
+        app:layout_constraintTop_toBottomOf="@id/noConnectionLottieView"
         app:layout_constraintVertical_chainStyle="packed"/>
 
     <TextView
@@ -66,12 +69,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text3"/>
 
-    <android.support.constraint.Group
-        android:id="@+id/connection_error_group"
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/connectionErrorGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="white_background_view,no_connection_lottie_view,text3,opps_text,text4"/>
+        android:visibility="invisible"
+        app:constraint_referenced_ids="whiteBackgroundView,noConnectionLottieView,text3,opps_text,text4"/>
 
 
     <TextView
@@ -80,19 +83,19 @@
         android:text="Getting data from server"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.4"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.4"/>
 
-    <android.support.constraint.Group
-        android:id="@+id/loading_group"
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/loadingGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="white_background_view,getting_data_textview"/>
+        app:constraint_referenced_ids="whiteBackgroundView,getting_data_textview"/>
 
 
     <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/loading_lottie_view"
+        android:id="@+id/loadingLottieView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="30dp"
@@ -105,4 +108,4 @@
         app:lottie_loop="true"/>
 
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

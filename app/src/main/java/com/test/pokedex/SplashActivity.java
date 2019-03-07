@@ -2,7 +2,7 @@ package com.test.pokedex;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -11,7 +11,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        Intent intent = new Intent(this, PokemonListActivity.class);
+        Intent intent = new Intent(this, PokemonListActivity2.class);
         startActivity(intent);
         finish();
     }

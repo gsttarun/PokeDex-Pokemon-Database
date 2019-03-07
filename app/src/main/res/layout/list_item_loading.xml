@@ -2,21 +2,21 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="horizontal"
-    android:paddingBottom="5dp"
-    android:weightSum="2">
+    android:layout_height="60dp"
+    android:weightSum="2"
+    android:gravity="center">
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/animation_view"
         android:layout_width="0dp"
+        android:layout_height="50dp"
         android:layout_weight="1"
-        android:layout_height="20dp"
+        android:scaleType="centerCrop"
         app:lottie_autoPlay="true"
         app:lottie_fileName="continuous_wave_loader.json"
-        android:scaleType="centerCrop"
-        app:lottie_loop="true"/>
+        app:lottie_loop="true"
+        tools:background="@color/colorAccent"/>
 
 </LinearLayout>
